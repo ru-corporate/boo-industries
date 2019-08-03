@@ -1,10 +1,6 @@
 import boo
 from boo.dataframe.util import industry
 
-import pandas as pd    
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)    
-
 
 # some companies, _underscore for companies for erroneous report
 class COMPANY:
@@ -25,7 +21,8 @@ class ALLOC:
            7706560230,
            7703247653,
            7707296796,
-           7725693620]
+           7725693620,
+           7703204071]
     metal=[7449006184]
     auto_specmach=[7710761161]
     auto_component=[5001048893]
@@ -90,6 +87,10 @@ if __name__ == "__main__":
 
     # list a a table + save to csv         
     print(automotive(df,'sales')[cols].head(10))
+    
+    import pandas as pd    
+    pd.set_option('display.max_columns', 500)
+    pd.set_option('display.width', 1000)    
     
     af = automotive(df,'sales').set_index("title")
     
