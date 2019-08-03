@@ -11,6 +11,7 @@ class COMPANY:
     _neftekom = 7801464198
     ferronordic = 5001048893
     e4 = 7720554943
+    nami = 7711000924
 
 UNREAL = [COMPANY._neftekom]
     
@@ -85,18 +86,24 @@ if __name__ == "__main__":
         a_ = boo.read_dataframe(2017)
         df = boo.large_companies(a_)
         print("Imported full dataframe")
-    cols = ['sales', 'ta', 'of', 'title']              
-    print(automotive(df,'sales')[cols][50:100])
+    cols = ['sales', 'ta', 'of', 'title']     
+
+    # list a a table + save to csv         
+    print(automotive(df,'sales')[cols].head(10))
     
-    af = automotive(df).set_index("title")
+    af = automotive(df,'sales').set_index("title")
     
+    # plotting    
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
     
-    af[5:20].plot.scatter("ta", "sales", ax=ax)
-    for k, v in af.iterrows():
+    on_axis = ["of", "sales"]
+    af[0:10].plot.scatter(*on_axis, ax=ax)
+    for k, v in af[on_axis].iterrows():
         ax.annotate(k, v)
         
-    af2 = af.head(20)
-    (af2.sales/af2.ta).sort_values()
+    fig, ax = plt.subplots()        
+    af2 = af.head(15)
+    (af2.sales/af2.of).sort_values(ascending=True).head(12).plot.barh()
+    (af2.sales/af2.of).sort_values(ascending=True).tail(3).plot.barh()
     
