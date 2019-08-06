@@ -1,28 +1,56 @@
 import boo
-from boo.dataframe.util import industry
+from boo.dataframe.util import industry, sort
 
 
-# some companies, _underscore for companies for erroneous report
+# some companies
 class COMPANY:
-    _neftekom = 7801464198
     ferronordic = 5001048893
     e4 = 7720554943
     nami = 7711000924
 
-UNREAL = [COMPANY._neftekom]
+SUSPICIOUS = [
+        7801464198, # neftekom 
+        ]
+
+# industry(df, 52, 24)[cols]
     
 # groups of companies not in their     
 class ALLOC:
-    tires=[7816162305,
-           7704787370,
+    seaport_grain=[
+           2315014748,
+           2315996886,
+           2352044733,
+           2315006923,
+           2365026121
+            ]
+    tires=[
+           1651000027,
+           1651049488,
+           2223621728,
+           3435900531,
+           3663088326,
+           4027105304,
+           4345465597,
+           4703073810,
+           4802011710,           
+           5047065059,
            5073007462,
-           2457061775,
-           1651024807,
-           7706560230,
+           5506007419,
+           6674134107,      
+           7601001509,
+           7703204071,
            7703247653,
+           7704787370,
+           7706560230,
            7707296796,
-           7725693620,
-           7703204071]
+           7728629485,
+           7816162305,
+           ]
+    tires_trade=[
+            1651024807,
+            3664023441,
+            7725693620
+            ]
     metal=[7449006184]
     auto_specmach=[7710761161]
     auto_component=[5001048893]
@@ -31,40 +59,38 @@ class ALLOC:
            3711018160,
            7717591053,
            5024097520]
-    construction=[7719272800,
-                  7703702341,
-                  7705892313,
-                  5024115433,
-                  7715941922,
-                  7701716324,
-                  7708645993,
-                  7734050262,
-                  7720554943,
-                  7705008315,
-                  3123156420,
-                  7729564128]    
+    construction=[
+           7719272800,
+           7703702341,
+           7705892313,
+           5024115433,
+           7715941922,
+           7701716324,
+           7708645993,
+           7734050262,
+           7720554943,
+           7705008315,
+           3123156420,
+           7729564128,
+           2457061775,
+                  ]    
+
+def named(df, name):
+    ix = [str(x) for x in getattr(ALLOC, name)]
+    return df.loc[ix,:] 
+    
 
 def as_str(xs):
     return [str(x) for x in xs]
 
     
-def combine(*args, base=UNREAL):    
-    return as_str(base) + as_str(args)
-
-# Автомобильная промышленность
-
-# производители
-# импортеры
-# дилеры
-# шины
-# компоненты
-# спецтезхника
-
-# https://www.vedomosti.ru/economics/articles/2018/04/23/767509-krupneishie-avtodileri-natorgovali-na-18-trln-rublei
+def combine(*args):    
+    return as_str(args)
 
               
-def automotive(df, sort='of'):
-    exclude = combine(COMPANY.e4,
+def automotive(df):
+    exclude = as_str(SUSPICIOUS) + combine(
+                      COMPANY.e4,
                       *ALLOC.construction,
                       *ALLOC.tires,
                       *ALLOC.auto_specmach,
@@ -73,8 +99,31 @@ def automotive(df, sort='of'):
                       *ALLOC.other)
     return industry(df, 29) \
            .append(industry(df, 45)) \
-           .sort_values(sort, ascending=False) \
-           .drop(exclude)
+           .drop(exclude, errors='ignore')
+
+
+def tires(df):    
+    return named(df, 'tires')
+
+
+def tires_prod(df):    
+    return tires(df).query('of>0.3')
+
+
+def tires_dist(df):    
+    return tires(df).query('of<=0.3')
+
+
+def tires_trade(df):    
+    return named(df, 'tires_trade')
+
+
+def seaport_grain(df):
+    return named(df, 'seaport_grain')
+
+def grain_trade(df):
+    return industry(df, 46, 21) 
+    #Торговля оптовая зерном, необработанным табаком, семенами и кормами для сельскохозяйственных животных
 
 if __name__ == "__main__":
     try:
@@ -82,29 +131,9 @@ if __name__ == "__main__":
     except NameError:
         a_ = boo.read_dataframe(2017)
         df = boo.large_companies(a_)
-        print("Imported full dataframe")
-    cols = ['sales', 'ta', 'of', 'title']     
+    cols = ['sales', 'ta', 'of', 'profit_before_tax', 'title']     
 
-    # list a a table + save to csv         
-    print(automotive(df,'sales')[cols].head(10))
-    
-    import pandas as pd    
-    pd.set_option('display.max_columns', 500)
-    pd.set_option('display.width', 1000)    
-    
-    af = automotive(df,'sales').set_index("title")
-    
-    # plotting    
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots()
-    
-    on_axis = ["of", "sales"]
-    af[0:10].plot.scatter(*on_axis, ax=ax)
-    for k, v in af[on_axis].iterrows():
-        ax.annotate(k, v)
-        
-    fig, ax = plt.subplots()        
-    af2 = af.head(15)
-    (af2.sales/af2.of).sort_values(ascending=True).head(12).plot.barh()
-    (af2.sales/af2.of).sort_values(ascending=True).tail(3).plot.barh()
-    
+      
+    print(sort(automotive(df), 'sales')[cols].head(10))
+    for f in tires_prod, tires_dist, tires_trade:
+        print(f(df)[cols])

@@ -1,0 +1,12 @@
+TODO:
+- [ ] frontline visual (tiles)
+
+TODO NEXT:
+- [ ] sector columns: "auto", "retail", "beer", "cement", "mm", "oilgas", "constr", 
+      "airport", "vodokanal", "power", "coal", "unknown", "airplane" (for 100+ ta)
+- [ ] is_holding()
+
+TODO NEXT 2:
+- [ ] list of research questions and quality criteria
+- [ ] excercise check accounting identities 
+- [ ] financial coefficients library
